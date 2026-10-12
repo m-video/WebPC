@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebPC - Simulador de PC Virtual x86</title>
   
-  <!-- Tailwind CSS para diseño moderno y fuentes -->
+  <!-- Tailwind CSS para diseño moderno -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
@@ -15,8 +15,6 @@
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #090d16; color: #f1f5f9; }
     code, pre { font-family: 'JetBrains Mono', monospace; }
-    
-    /* Efecto de brillo sutil en el monitor */
     .crt-glow {
       box-shadow: 0 0 40px -10px rgba(56, 189, 248, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.8);
     }
@@ -31,7 +29,7 @@
         <span class="text-xl">💻</span>
       </div>
       <div>
-        <h1 class="font-bold text-lg text-slate-100 tracking-tight">WebPC <span class="text-sky-400 font-mono text-sm px-2 py-0.5 bg-sky-500/10 rounded-full border border-sky-500/20">v1.2</span></h1>
+        <h1 class="font-bold text-lg text-slate-100 tracking-tight">WebPC <span class="text-sky-400 font-mono text-sm px-2 py-0.5 bg-sky-500/10 rounded-full border border-sky-500/20">v1.3</span></h1>
         <p class="text-xs text-slate-400">Entorno de emulación x86 compilado en WebAssembly</p>
       </div>
     </div>
@@ -59,6 +57,17 @@
         <span>⚡</span> Encender PC Virtual
       </button>
 
+      <!-- Barra de Carga (Oculta por defecto) -->
+      <div id="progressContainer" class="hidden flex-col gap-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+        <div class="flex justify-between text-xs">
+          <span id="progressLabel" class="text-slate-300 font-medium truncate max-w-[180px]">Cargando recursos...</span>
+          <span id="progressPercent" class="text-sky-400 font-mono">0%</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-gradient-to-r from-sky-500 to-blue-500 h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
+        </div>
+      </div>
+
       <hr class="border-slate-800">
 
       <!-- Zona de Archivos .EXE -->
@@ -82,7 +91,7 @@
 
       <!-- Pie de panel -->
       <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3 text-[11px] text-slate-400 leading-relaxed">
-        <p>💡 <strong class="text-slate-300">Tip:</strong> Enciende la PC y luego arrastra tu ejecutable compatible de 16/32 bits para montarlo en la disquetera secundaria.</p>
+        <p>💡 <strong class="text-slate-300">Tip:</strong> Enciende la PC y observa la barra de progreso. Luego arrastra tu ejecutable para montarlo en la unidad secundaria.</p>
       </div>
     </section>
 
@@ -116,20 +125,29 @@
       const statusText = document.getElementById('statusText');
       const placeholder = document.getElementById('placeholder');
       const statusIndicator = document.getElementById('statusIndicator');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar = document.getElementById('progressBar');
+      const progressPercent = document.getElementById('progressPercent');
+      const progressLabel = document.getElementById('progressLabel');
 
       if (!isRunning) {
-        // Cambiar estados visuales a "Encendiendo"
+        // Mostrar barra de progreso y ocultar placeholder
         placeholder.style.opacity = '0';
         setTimeout(() => placeholder.style.display = 'none', 300);
         
+        progressContainer.style.display = 'flex';
+        progressBar.style.width = '0%';
+        progressPercent.innerText = '0%';
+        progressLabel.innerText = 'Conectando con CDN...';
+
         statusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
-        statusText.innerText = "Iniciando BIOS...";
+        statusText.innerText = "Descargando componentes...";
         statusIndicator.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-400";
         
         btn.innerHTML = `<span>🛑</span> Apagar PC Virtual`;
         btn.className = "w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg shadow-red-500/20 active:scale-[0.98]";
 
-        // Inicialización correcta usando la clase V86 oficial
+        // Inicialización de la máquina virtual v86
         emulation = new V86({
           wasm_path: "https://cdn.jsdelivr.net/npm/v86@latest/build/v86.wasm",
           memory_size: 64 * 1024 * 1024,
@@ -147,7 +165,29 @@
           autostart: true,
         });
 
+        // Evento de progreso de descarga oficial de v86
+        emulation.add_listener("download-progress", function(e) {
+          // e.file_name, e.loaded, e.total
+          const filename = e.file_name ? e.file_name.split('/').pop() : 'archivo';
+          progressLabel.innerText = `Descargando: ${filename}`;
+          
+          if (e.total && e.total > 0) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percent + '%';
+            progressPercent.innerText = percent + '%';
+          }
+        });
+
+        // Evento cuando la máquina está lista para operar
         emulation.add_listener("ide-ready", function() {
+          progressBar.style.width = '100%';
+          progressPercent.innerText = '100%';
+          progressLabel.innerText = '¡Sistema listo!';
+          
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+          }, 600);
+
           statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
           statusText.innerText = "Sistema Activo";
           statusIndicator.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400";
@@ -162,42 +202,5 @@
         
         document.getElementById("screen").innerHTML = '<div style="white-space: pre; font: 14px monospace; line-height: 14px;"></div>';
         
-        placeholder.style.display = 'flex';
-        setTimeout(() => placeholder.style.opacity = '1', 10);
-
-        statusDot.className = "w-2.5 h-2.5 rounded-full bg-slate-500";
-        statusText.innerText = "Sistema Apagado";
-        statusIndicator.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300";
-
-        btn.innerHTML = `<span>⚡</span> Encender PC Virtual`;
-        btn.className = "w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white shadow-lg shadow-sky-500/20 active:scale-[0.98]";
-        
-        isRunning = false;
-      }
-    }
-
-    function handleFileDrop(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      if (!isRunning) {
-        alert("⚠️ Por favor enciende la PC Virtual primero antes de insertar archivos.");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const arrayBuffer = event.target.result;
-        emulation.ic.storage.insert_floppy(new Uint8Array(arrayBuffer), function(success) {
-          if (success) {
-            alert(`✅ ¡Ejecutable "${file.name}" montado con éxito en la unidad B:! Escribe B: y presiona Enter en la consola.`);
-          } else {
-            alert("❌ Error al montar el archivo en la máquina virtual.");
-          }
-        });
-      };
-      reader.readAsArrayBuffer(file);
-    }
-  </script>
-</body>
-</html>
+        progressContainer.style.display = 'none';
+        placeholder.style
