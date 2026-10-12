@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebPC - Simulador de PC Virtual x86</title>
   
-  <!-- Tailwind CSS para diseño moderno -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
-  <!-- Motor v86 WebAssembly desde CDN oficial -->
+  <!-- Motor v86 WebAssembly Oficial -->
   <script src="https://cdn.jsdelivr.net/npm/v86@latest/build/libv86.js"></script>
 
   <style>
@@ -23,14 +23,14 @@
 <body class="h-screen flex flex-col overflow-hidden">
 
   <!-- Header Superior -->
-  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex justify-between items-center z-10">
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex justify-between items-center z-10">
     <div class="flex items-center gap-3">
       <div class="bg-sky-500/10 p-2 rounded-xl border border-sky-500/20">
         <span class="text-xl">💻</span>
       </div>
       <div>
-        <h1 class="font-bold text-lg text-slate-100 tracking-tight">WebPC <span class="text-sky-400 font-mono text-sm px-2 py-0.5 bg-sky-500/10 rounded-full border border-sky-500/20">v1.3</span></h1>
-        <p class="text-xs text-slate-400">Entorno de emulación x86 compilado en WebAssembly</p>
+        <h1 class="font-bold text-lg text-slate-100 tracking-tight">WebPC <span class="text-sky-400 font-mono text-sm px-2 py-0.5 bg-sky-500/10 rounded-full border border-sky-500/20">PRO</span></h1>
+        <p class="text-xs text-slate-400">Emulador x86 nativo en el navegador</p>
       </div>
     </div>
     
@@ -49,7 +49,7 @@
     <section class="w-80 bg-slate-900/60 backdrop-blur border border-slate-800/80 rounded-2xl p-5 flex flex-col gap-6 shadow-xl">
       <div>
         <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-1">Panel de Control</h2>
-        <p class="text-xs text-slate-400">Gestiona la energía y los discos virtuales de la máquina.</p>
+        <p class="text-xs text-slate-400">Gestiona la energía y los discos de la máquina.</p>
       </div>
 
       <!-- Botón de Encendido -->
@@ -57,16 +57,8 @@
         <span>⚡</span> Encender PC Virtual
       </button>
 
-      <!-- Barra de Carga (Oculta por defecto) -->
-      <div id="progressContainer" class="hidden flex-col gap-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
-        <div class="flex justify-between text-xs">
-          <span id="progressLabel" class="text-slate-300 font-medium truncate max-w-[180px]">Cargando recursos...</span>
-          <span id="progressPercent" class="text-sky-400 font-mono">0%</span>
-        </div>
-        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-          <div id="progressBar" class="bg-gradient-to-r from-sky-500 to-blue-500 h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
-        </div>
-      </div>
+      <!-- Mensaje de Estado / Error -->
+      <div id="alertBox" class="hidden p-3 rounded-xl text-xs bg-red-500/10 border border-red-500/20 text-red-400"></div>
 
       <hr class="border-slate-800">
 
@@ -74,7 +66,7 @@
       <div class="flex flex-col gap-3 flex-1">
         <div>
           <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-1">Carga de Programas</h2>
-          <p class="text-xs text-slate-400">Monta ejecutables o imágenes de disco.</p>
+          <p class="text-xs text-slate-400">Monta ejecutables en la disquetera B:</p>
         </div>
 
         <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="border-2 border-dashed border-slate-700/80 hover:border-sky-500/50 bg-slate-800/30 hover:bg-slate-800/50 rounded-xl p-6 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-2 group flex-1">
@@ -83,15 +75,14 @@
           </div>
           <div class="space-y-1">
             <p class="text-xs font-medium text-slate-300">Arrastra tu <span class="text-sky-400">.exe</span> aquí</p>
-            <p class="text-[10px] text-slate-500">o haz clic para explorar archivos</p>
+            <p class="text-[10px] text-slate-500">o haz clic para explorar</p>
           </div>
           <input type="file" id="fileInput" accept=".exe,.com,.img,.bin" class="hidden" onchange="handleFileDrop(event)">
         </div>
       </div>
 
-      <!-- Pie de panel -->
       <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3 text-[11px] text-slate-400 leading-relaxed">
-        <p>💡 <strong class="text-slate-300">Tip:</strong> Enciende la PC y observa la barra de progreso. Luego arrastra tu ejecutable para montarlo en la unidad secundaria.</p>
+        <p>💡 <strong class="text-slate-300">Guía Toti & Moxi:</strong> Enciende la PC, espera a que cargue FreeDOS y arrastra tu archivo ejecutable.</p>
       </div>
     </section>
 
@@ -104,7 +95,7 @@
           🖥️
         </div>
         <h3 class="text-slate-300 font-medium text-base">Monitor en reposo</h3>
-        <p class="text-slate-500 text-xs mt-1">Presiona <span class="text-sky-400 font-semibold">"Encender PC Virtual"</span> para iniciar el sistema</p>
+        <p class="text-slate-500 text-xs mt-1">Haz clic en <span class="text-sky-400 font-semibold">"Encender PC Virtual"</span></p>
       </div>
 
       <!-- Contenedor requerido por v86 -->
@@ -119,88 +110,118 @@
     let emulation = null;
     let isRunning = false;
 
+    function showAlert(msg) {
+      const box = document.getElementById('alertBox');
+      if (msg) {
+        box.innerText = msg;
+        box.style.display = 'block';
+      } else {
+        box.style.display = 'none';
+      }
+    }
+
     function toggleVM() {
       const btn = document.getElementById('powerBtn');
       const statusDot = document.getElementById('statusDot');
       const statusText = document.getElementById('statusText');
       const placeholder = document.getElementById('placeholder');
       const statusIndicator = document.getElementById('statusIndicator');
-      const progressContainer = document.getElementById('progressContainer');
-      const progressBar = document.getElementById('progressBar');
-      const progressPercent = document.getElementById('progressPercent');
-      const progressLabel = document.getElementById('progressLabel');
+
+      showAlert(null); // Limpiar errores previos
 
       if (!isRunning) {
-        // Mostrar barra de progreso y ocultar placeholder
         placeholder.style.opacity = '0';
         setTimeout(() => placeholder.style.display = 'none', 300);
-        
-        progressContainer.style.display = 'flex';
-        progressBar.style.width = '0%';
-        progressPercent.innerText = '0%';
-        progressLabel.innerText = 'Conectando con CDN...';
 
         statusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
-        statusText.innerText = "Descargando componentes...";
+        statusText.innerText = "Iniciando emulador...";
         statusIndicator.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-400";
         
         btn.innerHTML = `<span>🛑</span> Apagar PC Virtual`;
         btn.className = "w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg shadow-red-500/20 active:scale-[0.98]";
 
-        // Inicialización de la máquina virtual v86
-        emulation = new V86({
-          wasm_path: "https://cdn.jsdelivr.net/npm/v86@latest/build/v86.wasm",
-          memory_size: 64 * 1024 * 1024,
-          vga_memory_size: 2 * 1024 * 1024,
-          screen_container: document.getElementById("screen"),
-          bios: {
-            url: "https://cdn.jsdelivr.net/npm/v86@latest/bios/seabios.bin",
-          },
-          vga_bios: {
-            url: "https://cdn.jsdelivr.net/npm/v86@latest/bios/vgabios.bin",
-          },
-          floppy: {
-            url: "https://cdn.jsdelivr.net/npm/v86@latest/images/fdos.img",
-          },
-          autostart: true,
-        });
+        try {
+          // Inicialización segura con V86
+          emulation = new V86({
+            wasm_path: "https://cdn.jsdelivr.net/npm/v86@latest/build/v86.wasm",
+            memory_size: 64 * 1024 * 1024,
+            vga_memory_size: 2 * 1024 * 1024,
+            screen_container: document.getElementById("screen"),
+            bios: {
+              url: "https://cdn.jsdelivr.net/npm/v86@latest/bios/seabios.bin",
+            },
+            vga_bios: {
+              url: "https://cdn.jsdelivr.net/npm/v86@latest/bios/vgabios.bin",
+            },
+            floppy: {
+              url: "https://cdn.jsdelivr.net/npm/v86@latest/images/fdos.img",
+            },
+            autostart: true,
+          });
 
-        // Evento de progreso de descarga oficial de v86
-        emulation.add_listener("download-progress", function(e) {
-          // e.file_name, e.loaded, e.total
-          const filename = e.file_name ? e.file_name.split('/').pop() : 'archivo';
-          progressLabel.innerText = `Descargando: ${filename}`;
-          
-          if (e.total && e.total > 0) {
-            const percent = Math.round((e.loaded / e.total) * 100);
-            progressBar.style.width = percent + '%';
-            progressPercent.innerText = percent + '%';
-          }
-        });
+          emulation.add_listener("ide-ready", function() {
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+            statusText.innerText = "Sistema Activo";
+            statusIndicator.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400";
+            isRunning = true;
+          });
 
-        // Evento cuando la máquina está lista para operar
-        emulation.add_listener("ide-ready", function() {
-          progressBar.style.width = '100%';
-          progressPercent.innerText = '100%';
-          progressLabel.innerText = '¡Sistema listo!';
-          
-          setTimeout(() => {
-            progressContainer.style.display = 'none';
-          }, 600);
-
-          statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
-          statusText.innerText = "Sistema Activo";
-          statusIndicator.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400";
-          isRunning = true;
-        });
+        } catch (err) {
+          console.error(err);
+          showAlert("⚠️ Error al iniciar v86: " + err.message);
+          resetUI();
+        }
 
       } else {
-        if (emulation) {
-          emulation.destroy();
-          emulation = null;
-        }
-        
-        document.getElementById("screen").innerHTML = '<div style="white-space: pre; font: 14px monospace; line-height: 14px;"></div>';
-        
-        progressContainer.style.display = 'none';
-        placeholder.style
+        resetUI();
+      }
+    }
+
+    function resetUI() {
+      if (emulation) {
+        try { emulation.destroy(); } catch(e){}
+        emulation = null;
+      }
+      
+      document.getElementById("screen").innerHTML = '<div style="white-space: pre; font: 14px monospace; line-height: 14px;"></div>';
+      
+      const placeholder = document.getElementById('placeholder');
+      placeholder.style.display = 'flex';
+      setTimeout(() => placeholder.style.opacity = '1', 10);
+
+      document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-slate-500";
+      document.getElementById('statusText').innerText = "Sistema Apagado";
+      document.getElementById('statusIndicator').className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300";
+
+      const btn = document.getElementById('powerBtn');
+      btn.innerHTML = `<span>⚡</span> Encender PC Virtual`;
+      btn.className = "w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white shadow-lg shadow-sky-500/20 active:scale-[0.98]";
+      
+      isRunning = false;
+    }
+
+    function handleFileDrop(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!isRunning) {
+        alert("⚠️ Por favor enciende la PC Virtual primero antes de insertar archivos.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const arrayBuffer = event.target.result;
+        emulation.ic.storage.insert_floppy(new Uint8Array(arrayBuffer), function(success) {
+          if (success) {
+            alert(`✅ ¡Ejecutable "${file.name}" montado con éxito en la unidad B:! Escribe B: y presiona Enter.`);
+          } else {
+            alert("❌ Error al montar el archivo.");
+          }
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  </script>
+</body>
+</html>
