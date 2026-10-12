@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebPC - Emulador x86 (v86)</title>
   
-  <!-- Carga del motor oficial v86 -->
-  <script src="https://v86.js.org/build/libv86.js"></script>
+  <!-- Carga del motor oficial v86 a través de CDN estable (jsDelivr) -->
+  <script src="https://cdn.jsdelivr.net/npm/v86@latest/build/libv86.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -94,20 +94,20 @@
         statusBadge.innerText = "Encendiendo...";
         statusBadge.style.background = "#d97706";
 
-        // Configuración con BIOS y VGA BIOS explícitas para evitar errores 404 en GitHub Pages
+        // Configuración apuntando a los recursos oficiales alojados en jsDelivr CDN
         emulation = new V86Starter({
-          wasm_path: "https://v86.js.org/build/v86.wasm",
+          wasm_path: "https://cdn.jsdelivr.net/npm/v86@latest/build/v86.wasm",
           memory_size: 64 * 1024 * 1024,
           vga_memory_size: 2 * 1024 * 1024,
           screen_container: document.getElementById("screen"),
           bios: {
-            url: "https://v86.js.org/bios/seabios.bin",
+            url: "https://cdn.jsdelivr.net/npm/v86@latest/bios/seabios.bin",
           },
           vga_bios: {
-            url: "https://v86.js.org/bios/vgabios.bin",
+            url: "https://cdn.jsdelivr.net/npm/v86@latest/bios/vgabios.bin",
           },
           floppy: {
-            url: "https://v86.js.org/images/fdos.img",
+            url: "https://cdn.jsdelivr.net/npm/v86@latest/images/fdos.img",
           },
           autostart: true,
         });
